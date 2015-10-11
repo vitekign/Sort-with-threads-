@@ -340,59 +340,13 @@ int main(int argc, char **argv)
 
     setTime();
 
-
-        /*
-
-        int pivot = NUM_ELEMENTS / NUM_THREADS;
-
-        for(int i = 0 ,j= 1; i < NUM_THREADS; i++, j++){
-
-            thr_data[i].low = i * pivot;
-            if(i == NUM_THREADS -1){
-                thr_data[i].high = NUM_ELEMENTS - 1;
-            }else {
-                thr_data[i].high = j * pivot - 1;
-            }
-            thr_data[i].tid = i;
-            /** --Signature of the function--
-             *
-             * int pthread_create(pthread_t *thread, pthread_attr_t *attr,
-                       void *(*start_routine)(void *), void *arg);
-             */
-
-             low;
-             pivot = NUM_ELEMENTS / NUM_THREADS;
-            for (int i = 0, j = 1; i < NUM_THREADS; i++, j++) {
-
-                low = i * pivot;
-
-                if (i == NUM_THREADS - 1) {
-
-                    int high =  NUM_ELEMENTS-1;
-                    if (TYPE_OF_SORT == SORT_TYPES::MERGE)
-                        mergeSort(arr, low, high);
-
-
-                    else if (TYPE_OF_SORT == SORT_TYPES::QUICK)
-                        quickSort(arr, low, high);
-
-
-                    else if (TYPE_OF_SORT == SORT_TYPES::INSERTION)
-                        insertionSort(&arr[low], NUM_ELEMENTS-5);
-
-                } else {
-
-                    if (TYPE_OF_SORT == SORT_TYPES::MERGE)
-                        mergeSort(arr, low, j * pivot - 1);
-
-
-                    else if (TYPE_OF_SORT == SORT_TYPES::QUICK)
-                        quickSort(arr, low,  j * pivot - 1);
-
-
-                    else if (TYPE_OF_SORT == SORT_TYPES::INSERTION)
-                        insertionSort(&arr[low],  j * pivot);
-                }
+            for (int i = 0; i < NUM_THREADS; i++) {
+                if (TYPE_OF_SORT == SORT_TYPES::MERGE)
+                    mergeSort(arr, indices[i][0], indices[i][1]);
+                else if (TYPE_OF_SORT == SORT_TYPES::QUICK)
+                    quickSort(arr, indices[i][0], indices[i][1]);
+                else if (TYPE_OF_SORT == SORT_TYPES::INSERTION)
+                    insertionSort(&arr[indices[i][0]], indices[i][1]);
             }
 
 
