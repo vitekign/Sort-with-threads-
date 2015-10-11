@@ -5,6 +5,7 @@
 using namespace std;
 
 #define DEBUG_MODE 0
+#define TEST_MODE 0
 
 int *arr;
 long gRefTime;
@@ -28,7 +29,6 @@ enum SORT_TYPES{
 
 //TODO: Add ability to use only the main thread
 //TODO: test your program in 2003 or 2009 lab
-//TODO: add an array with indices
 //TODO: 20 threads for 20 elements is not good - RESOLVE IT!!!
 
 /**
@@ -217,8 +217,11 @@ void* thr_func(void *arg){
         insertionSort(&arr[data->low], data->high);
 
 
+#if TEST_MODE == 1
     printf("\nhello from thr_func, thread id: %d\n", data->tid);
+#endif
     pthread_exit(NULL);
+
 }
 
 
@@ -270,7 +273,7 @@ int main(int argc, char **argv)
         indices[i] = (int*)calloc(2, sizeof(int));
     }
 
-#if DEBUG_MODE == 1
+#if TEST_MODE == 1
     for(int i = 0; i < 12; i++){
         for(int j = 0; j < 2; j++){
             indices[i][j] = j;
@@ -279,12 +282,14 @@ int main(int argc, char **argv)
     for(int i = 0; i < 12; i++){
         cout << "index is " << i << " value are: " << indices[i][0] << " and " << indices[i][1] << endl;
     }
+#endif
+
 
     if(argc < 3){
         cerr << "Please enter | array size [int between 1 and 100 000 000 | number of threads [int between 1 - 16 |\nsorting algorithm [l - insertion sort or q - quick sort] ";
         return -1;
     }
-#endif
+
 
 
     const int NUM_THREADS = atoi(argv[1]);
@@ -316,8 +321,13 @@ int main(int argc, char **argv)
          *
          */
         if (i == NUM_THREADS - 1) {
-            indices[i][0] = low;
-            indices[i][1] = NUM_ELEMENTS - 1;
+            if(  TYPE_OF_SORT != SORT_TYPES::INSERTION ){
+                indices[i][0] = low;
+                indices[i][1] = NUM_ELEMENTS - 1;}
+            else {
+                indices[i][0] = low;
+                indices[i][1] = NUM_ELEMENTS%(NUM_THREADS) + pivot;
+            }
 
         } else {
             /*
@@ -326,11 +336,17 @@ int main(int argc, char **argv)
              *
              * pivot = 20 / 4 = 5
              */
-            indices[i][0] = low;
-            indices[i][1] = j * pivot - 1;
+            if(  TYPE_OF_SORT != SORT_TYPES::INSERTION ){
+                indices[i][0] = low;
+                indices[i][1] = j * pivot - 1;}
+            else {
+                indices[i][0] = low;
+                indices[i][1] = pivot;
+            }
 
         }
     }
+
 
     populateArrayWithRandomInt(arr, NUM_ELEMENTS, 0, NUM_ELEMENTS);
 
@@ -354,8 +370,8 @@ int main(int argc, char **argv)
     printAllElements(NUM_ELEMENTS, arr);
 #endif
 
-        pivot = NUM_ELEMENTS / NUM_THREADS;
-    for(int i = 0 ,j= 1; i < NUM_THREADS-1; i++, j++){
+    pivot = NUM_ELEMENTS / NUM_THREADS;
+       for(int i = 0 ,j= 1; i < NUM_THREADS-1; i++, j++){
         int low;
         low = i * pivot;
         if((NUM_THREADS-2) == i){
@@ -400,17 +416,11 @@ int main(int argc, char **argv)
     setTime();
 
     if(NUM_THREADS <= NUM_ELEMENTS){
+        for(int i = 0; i < NUM_THREADS; i++){
 
-        int pivot = NUM_ELEMENTS / NUM_THREADS;
+            thr_data[i].low = indices[i][0];
+            thr_data[i].high = indices[i][1];
 
-        for(int i = 0 ,j= 1; i < NUM_THREADS; i++, j++){
-
-            thr_data[i].low = i * pivot;
-            if(i == NUM_THREADS -1){
-                thr_data[i].high = NUM_ELEMENTS - 1;
-            }else {
-                thr_data[i].high = j * pivot - 1;
-            }
             thr_data[i].tid = i;
             /** --Signature of the function--
              *
@@ -448,7 +458,7 @@ int main(int argc, char **argv)
         }
     }
 
-    cout << "The time spent is: " << getTime() << endl;
+    cout << "The time spent with " << NUM_THREADS << " is " << getTime() << endl;
 
     //printAllElements(NUM_ELEMENTS, arr);
 
@@ -460,7 +470,7 @@ int main(int argc, char **argv)
     }
 
 
-    printf("hello from the main()\n");
+
 
 
 
