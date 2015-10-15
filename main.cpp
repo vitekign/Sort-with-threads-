@@ -6,7 +6,7 @@ using namespace std;
 
 #define DEBUG_MODE 0
 #define TEST_MODE 0
-
+#define DEBUG_MODE_THREADS 0
 int *arr;
 long gRefTime;
 int TYPE_OF_SORT;
@@ -25,44 +25,81 @@ enum SORT_TYPES{
 };
 
 
-
-
-//TODO: Add ability to use only the main thread
 //TODO: test your program in 2003 or 2009 lab
 //TODO: 20 threads for 20 elements is not good - RESOLVE IT!!!
+
+void swap(int a[], int i, int j) {
+    // TODO Auto-generated method stub
+    int temp = a[i];
+    a[i] = a[j];
+    a[j] = temp;
+}
+
+
+int partition(int a[], int p, int r) {
+
+    int x = a[p];
+    int i = p-1 ;
+    int j = r+1 ;
+
+    while (true) {
+        i++;
+        while ( i< r && a[i] < x)
+            i++;
+        j--;
+        while (j>p && a[j] > x)
+            j--;
+
+        if (i < j)
+            swap(a, i, j);
+        else
+            return j;
+    }
+}
+
+  void quickSort(int a[], int p, int r)
+{
+    if(p<r)
+    {
+        int q=partition(a,p,r);
+        quickSort(a,p,q);
+        quickSort(a,q+1,r);
+    }
+}
+
 
 /**
  * Quick Sort
  */
-int partition( int a[], int l, int r) {
-    int pivot, i, j, t;
-    pivot = a[l];
-    i = l; j = r+1;
-
-    while( 1)
-    {
-        do ++i; while( a[i] <= pivot && i <= r );
-        do --j; while( a[j] > pivot );
-        if( i >= j ) break;
-        t = a[i]; a[i] = a[j]; a[j] = t;
-    }
-    t = a[l]; a[l] = a[j]; a[j] = t;
-    return j;
-}
-
-void quickSort( int a[], int l, int r)
-{
-    int j;
-
-    if( l < r )
-    {
-        // divide and conquer
-        j = partition( a, l, r);
-        quickSort( a, l, j-1);
-        quickSort( a, j+1, r);
-    }
-
-}
+//int partition( int a[], int l, int r) {
+//    int pivot, i, j, t;
+//    pivot = a[l];
+//    i = l; j = r+1;
+//
+//    while( 1)
+//    {
+//        do ++i; while( a[i] <= pivot && i <= r );
+//        do --j; while( a[j] > pivot );
+//        if( i >= j ) break;
+//        t = a[i]; a[i] = a[j]; a[j] = t;
+//    }
+//    t = a[l]; a[l] = a[j]; a[j] = t;
+//    return j;
+//}
+//
+//void quickSort( int a[], int l, int r)
+//{
+//    int j;
+//
+//    if( l < r )
+//    {
+//        // divide and conquer
+//        j = partition( a, l, r);
+//        quickSort( a, l, j-1);
+//        quickSort( a, j+1, r);
+//    }
+//
+//}
 /**
  * END of Quick Sort
  */
@@ -142,7 +179,6 @@ void merge(int arr[], int l, int m, int r)
     int n2 =  r - m;
 
     /* create temp arrays */
-    //int *L[n1], R[n2];
     int *L = (int*)calloc(n1, sizeof(int));
     int *R = (int*)calloc(n2, sizeof(int));
 
@@ -204,8 +240,6 @@ void mergeSort(int arr[], int l, int r)
 
 
 
-
-
 void* thr_func(void *arg){
     thread_data_t *data = (thread_data_t *)arg;
 
@@ -260,6 +294,15 @@ void populateArrayWithRandomInt( int *&data,  const int len, int const low, int 
         temp++;
     }
 }
+
+
+/*
+ *  Run InsertionSort using two threads with array sizes 10K, 100K and 300K.
+    Run InsertionSort using four threads with an array size of 100K.
+    Run QuickSort using two threads with array sizes 1M, 10M and 100M.
+    Run QuickSort using four threads with an array size of 10M.
+ */
+
 
 
 int main(int argc, char **argv)
@@ -347,6 +390,14 @@ int main(int argc, char **argv)
         }
     }
 
+#if TEST_MODE == 1
+    cout << endl;
+    for(int i = 0; i < 12; i++){
+        cout << "index is " << i << " value are: " << indices[i][0] << " and " << indices[i][1] << endl;
+    }
+    cout << endl;
+#endif
+
 
     populateArrayWithRandomInt(arr, NUM_ELEMENTS, 0, NUM_ELEMENTS);
 
@@ -380,22 +431,18 @@ int main(int argc, char **argv)
             merge(arr, 0, (j*pivot)-1, (j+1)*pivot-1);
         }
     }
+    cout << "The time spent with one thread is: " << getTime() << endl;
+
 
 #if DEBUG_MODE == 1
     printAllElements(NUM_ELEMENTS, arr);
 #endif
-    cout << "The time spent with one thread is: " << getTime() << endl;
 
     if(assertSuccessSort(arr, NUM_ELEMENTS) == 1){
         printf("Sort is accurate\n");
     } else {
         printf("Sort is inacurate\n");
     }
-
-
-    //printAllElements(NUM_ELEMENTS, arr);
-
-
 
     /**
      * n[] and *n = (int*)calloc(len, sizeof(int));
@@ -406,8 +453,11 @@ int main(int argc, char **argv)
      * the size must be known in advance [at compile time]
      */
     populateArrayWithRandomInt(arr, NUM_ELEMENTS, 0, NUM_ELEMENTS);
+#if DEBUG_MODE_THREADS == 1
+    printAllElements(NUM_ELEMENTS, arr);
+#endif
     pthread_t thr[NUM_THREADS];
-    int i, rc;
+    int rc;
     /* create a thread_data_t argument array */
     thread_data_t thr_data[NUM_THREADS];
 
@@ -442,10 +492,9 @@ int main(int argc, char **argv)
         pthread_join(thr[i], NULL);
     }
 
-
-
-   //printAllElements(NUM_ELEMENTS, arr);
-
+#if DEBUG_MODE_THREADS == 1
+    printAllElements(NUM_ELEMENTS, arr);
+#endif
 
     pivot = NUM_ELEMENTS / NUM_THREADS;
     for(int i = 0 ,j= 1; i < NUM_THREADS-1; i++, j++){
@@ -458,20 +507,13 @@ int main(int argc, char **argv)
         }
     }
 
-    cout << "The time spent with " << NUM_THREADS << " is " << getTime() << endl;
-
-    //printAllElements(NUM_ELEMENTS, arr);
-
+    cout << "The time spent with " << NUM_THREADS << " thread[s] is " << getTime() << endl;
 
     if(assertSuccessSort(arr, NUM_ELEMENTS) == 1){
         printf("Sort is accurate\n");
     } else {
         printf("Sort is inacurate\n");
     }
-
-
-
-
 
 
     return 0;
