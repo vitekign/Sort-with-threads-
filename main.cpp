@@ -179,8 +179,8 @@ void merge(int arr[], int l, int m, int r)
     int n2 =  r - m;
 
     /* create temp arrays */
-    int *L = (int*)calloc(n1, sizeof(int));
-    int *R = (int*)calloc(n2, sizeof(int));
+    int *L = (int*)calloc((size_t)n1, sizeof(int));
+    int *R = (int*)calloc((size_t)n2, sizeof(int));
 
     /* Copy data to temp arrays L[] and R[] */
     for(i = 0; i < n1; i++)
@@ -286,7 +286,7 @@ int assertSuccessSort(const int const *arr, const int length){
  */
 void populateArrayWithRandomInt( int *&data,  const int len, int const low, int const high){
 
-    data = (int*)calloc(len, sizeof(int));
+    data = (int*)calloc((size_t)len, sizeof(int));
     int temp = 0;
     while( temp < len){
         *(data+temp) = (rand()%(high-low)+low);
@@ -423,8 +423,6 @@ int main(int argc, char **argv)
 
     pivot = NUM_ELEMENTS / NUM_THREADS;
        for(int i = 0 ,j= 1; i < NUM_THREADS-1; i++, j++){
-        int low;
-        low = i * pivot;
         if((NUM_THREADS-2) == i){
             merge(arr, 0, (j*pivot)-1, NUM_ELEMENTS - 1);
         }else {
@@ -498,8 +496,6 @@ int main(int argc, char **argv)
 
     pivot = NUM_ELEMENTS / NUM_THREADS;
     for(int i = 0 ,j= 1; i < NUM_THREADS-1; i++, j++){
-        int low;
-        low = i * pivot;
         if((NUM_THREADS-2) == i){
             merge(arr, 0, (j*pivot)-1, NUM_ELEMENTS - 1);
         }else {
@@ -514,6 +510,34 @@ int main(int argc, char **argv)
     } else {
         printf("Sort is inacurate\n");
     }
+
+
+    /* * * * *  TEST RESULTS * * * * *
+     1. Run InsertionSort using two threads with array sizes 10K, 100K and 300K.
+                    1 thread                                                 2 threads
+     10 K           13|12|14|13|12|14                                        9|8|8|9|7|7
+     100 K          1754|1600|1827|1824|1621                                 772|814|798|800|845
+     300 K          11375|10962|11072|10822                                  5617|5621|5583|5944
+
+     2. Run InsertionSort using four threads with an array size of 100K.
+                     1 thread                                                 4 threads
+     100 K           981|907|1036|928|917                                     304|415|381|376383
+
+
+
+     3. Run QuickSort using two threads with array sizes 1M, 10M and 100M.
+                     1 thread                                                 2 threads
+     1M              133|263|128|133|208|130                                  73|215|81|61|73|90
+     10M             1492|1494|1598|1701|1861                                 831|780|774|776|784
+     100M            13606|13491|17184                                        8215|7352|8509
+
+
+
+     4. Run QuickSort using four threads with an array size of 10M.
+                     1 thread                                                 4 threads
+     10M             2003|2003|2143|1794|1511                                 634|623|629|626|673
+     */
+
 
 
     return 0;
