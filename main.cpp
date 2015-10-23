@@ -181,6 +181,7 @@ void merge(int arr[], int l, int m, int r)
     /* create temp arrays */
     int *L = (int*)calloc((size_t)n1, sizeof(int));
     int *R = (int*)calloc((size_t)n2, sizeof(int));
+    //TODO delete memory allocation of *L and *R
 
     /* Copy data to temp arrays L[] and R[] */
     for(i = 0; i < n1; i++)
@@ -335,8 +336,8 @@ int main(int argc, char **argv)
 
 
 
-    const int NUM_THREADS = atoi(argv[1]);
-    const int NUM_ELEMENTS = atoi(argv[2]);
+    const int NUM_ELEMENTS = atoi(argv[1]);
+    const int NUM_THREADS = atoi(argv[2]);
     char SORTING_ALGORITHM = argv[3][0]; //[][0] in order to get the first character instead of a "c-string"
 
     if(SORTING_ALGORITHM == 'i' | SORTING_ALGORITHM == 'I')
@@ -420,6 +421,8 @@ int main(int argc, char **argv)
 #if DEBUG_MODE == 1
     printAllElements(NUM_ELEMENTS, arr);
 #endif
+
+    // 1   |   2   |   3   |   4   |   5   |   6
 
     pivot = NUM_ELEMENTS / NUM_THREADS;
        for(int i = 0 ,j= 1; i < NUM_THREADS-1; i++, j++){
