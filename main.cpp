@@ -7,6 +7,7 @@ using namespace std;
 #define DEBUG_MODE 0
 #define TEST_MODE 0
 #define DEBUG_MODE_THREADS 0
+
 int *arr;
 long gRefTime;
 int TYPE_OF_SORT;
@@ -25,8 +26,10 @@ enum SORT_TYPES{
 };
 
 
-//TODO: test your program in 2003 or 2009 lab
+//TODO: THINK about other ways of how to do the final merge of subarrays
 //TODO: 20 threads for 20 elements is not good - RESOLVE IT!!!
+//TODO: test your program in 2003 or 2009 lab
+
 
 void swap(int a[], int i, int j) {
     // TODO Auto-generated method stub
@@ -311,11 +314,7 @@ int main(int argc, char **argv)
 
     //Run QuickSort using two threads with array sizes 1M, 10M and 100M.
 
-    int **indices;
-    indices = (int**)(calloc(12, sizeof(int*)));
-    for(int i = 0; i<12; i++){
-        indices[i] = (int*)calloc(2, sizeof(int));
-    }
+
 
 #if TEST_MODE == 1
     for(int i = 0; i < 12; i++){
@@ -334,11 +333,15 @@ int main(int argc, char **argv)
         return -1;
     }
 
-
-
     const int NUM_ELEMENTS = atoi(argv[1]);
     const int NUM_THREADS = atoi(argv[2]);
     char SORTING_ALGORITHM = argv[3][0]; //[][0] in order to get the first character instead of a "c-string"
+
+    int **indices;
+    indices = (int**)(calloc((size_t)NUM_THREADS, sizeof(int*)));
+    for(int i = 0; i<NUM_THREADS; i++){
+        indices[i] = (int*)calloc(2, sizeof(int));
+    }
 
     if(SORTING_ALGORITHM == 'i' | SORTING_ALGORITHM == 'I')
         TYPE_OF_SORT = SORT_TYPES::INSERTION ;
@@ -346,8 +349,6 @@ int main(int argc, char **argv)
         TYPE_OF_SORT = SORT_TYPES::QUICK;
     else if (SORTING_ALGORITHM == 'm' | SORTING_ALGORITHM == 'M')
         TYPE_OF_SORT = SORT_TYPES::MERGE;
-
-
 
     int low;
     int pivot = NUM_ELEMENTS / NUM_THREADS;
