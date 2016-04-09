@@ -129,11 +129,6 @@ void insertionSort(int arr[], int length) {
  */
 
 
-
-
-
-
-
 long GetMilliSecondTime(struct timeb timeBuf)
 {
     long mliScndTime;
@@ -241,8 +236,6 @@ void mergeSort(int arr[], int l, int r)
         merge(arr, l, m, r);
     }
 }
-
-
 
 void* thr_func(void *arg){
     thread_data_t *data = (thread_data_t *)arg;
@@ -443,7 +436,7 @@ int main(int argc, char **argv)
     if(assertSuccessSort(arr, NUM_ELEMENTS) == 1){
         printf("Sort is accurate\n");
     } else {
-        printf("Sort is inacurate\n");
+        printf("Sort is inaccurate\n");
     }
 
     /**
