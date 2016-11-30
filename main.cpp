@@ -25,15 +25,9 @@ enum SORT_TYPES{
 };
 
 
-//TODO: THINK about other ways of how to do the final merge of subarrays
+//TODO: THINK about other ways of how to do the final merge of sub-arrays
 //TODO: 20 threads for 20 elements is not good - RESOLVE IT!!!
 //TODO: test your program in 2003 or 2009 lab
-
-void swap(int a[], int i, int j) {
-    int temp = a[i];
-    a[i] = a[j];
-    a[j] = temp;
-}
 
 
 /* * * * * * * *  Quick Sort * * * * * * * * */
@@ -67,17 +61,17 @@ void quickSort(int *arr, int l, int h){
 
 /* * * * * * * *  Insertion Sort * * * * * * * * */
 
-void insertionSort(int arr[], int length) {
-    int i, j, tmp;
-    for (i = 1; i < length; i++) {
-        j = i;
-        while (j > 0 && arr[j - 1] > arr[j]) {
-            tmp = arr[j];
-            arr[j] = arr[j - 1];
-            arr[j - 1] = tmp;
-            j--;
-        }
-    }
+void insertionSort(int *arr, int n) {
+   for(int i = 1; i < n; i++){
+       int curr = arr[i];
+       int j = i - 1;
+       while(j >= 0 && curr <= arr[j]){
+           arr[j+1] = arr[j];
+           j--;
+       }
+       j++;
+       arr[j] = curr;
+   }
 }
 
 
