@@ -18,7 +18,6 @@ typedef struct _thread_data_t {
     int high;
 } thread_data_t;
 
-
 enum SORT_TYPES{
     INSERTION,
     QUICK,
@@ -30,88 +29,44 @@ enum SORT_TYPES{
 //TODO: 20 threads for 20 elements is not good - RESOLVE IT!!!
 //TODO: test your program in 2003 or 2009 lab
 
-
 void swap(int a[], int i, int j) {
-    // TODO Auto-generated method stub
     int temp = a[i];
     a[i] = a[j];
     a[j] = temp;
 }
 
 
-int partition(int a[], int p, int r) {
+/* * * * * * * *  Quick Sort * * * * * * * * */
 
-    int x = a[p];
-    int i = p-1 ;
-    int j = r+1 ;
+void swap(int *a, int *b){
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
 
-    while (true) {
-        i++;
-        while ( i< r && a[i] < x)
-            i++;
-        j--;
-        while (j>p && a[j] > x)
-            j--;
+int divideIntoTwoHalves(int *arr, int l, int h){
+    int pivot = arr[h];
+    int j = l - 1;
+    for(int i = l; i < h; i++){
+        if(arr[i] <= pivot){
+            swap(arr + (++j), arr + i );
+        }
+    }
+    swap(arr + (++j), arr + h);
+    return j;
+}
 
-        if (i < j)
-            swap(a, i, j);
-        else
-            return j;
+void quickSort(int *arr, int l, int h){
+    if(l < h){
+        int div = divideIntoTwoHalves(arr, l, h);
+        quickSort(arr, l, div-1);
+        quickSort(arr, div+1, h);
     }
 }
 
-  void quickSort(int a[], int p, int r)
-{
-    if(p<r)
-    {
-        int q=partition(a,p,r);
-        quickSort(a,p,q);
-        quickSort(a,q+1,r);
-    }
-}
 
+/* * * * * * * *  Insertion Sort * * * * * * * * */
 
-/**
- * Quick Sort
- */
-//int partition( int a[], int l, int r) {
-//    int pivot, i, j, t;
-//    pivot = a[l];
-//    i = l; j = r+1;
-//
-//    while( 1)
-//    {
-//        do ++i; while( a[i] <= pivot && i <= r );
-//        do --j; while( a[j] > pivot );
-//        if( i >= j ) break;
-//        t = a[i]; a[i] = a[j]; a[j] = t;
-//    }
-//    t = a[l]; a[l] = a[j]; a[j] = t;
-//    return j;
-//}
-//
-//void quickSort( int a[], int l, int r)
-//{
-//    int j;
-//
-//    if( l < r )
-//    {
-//        // divide and conquer
-//        j = partition( a, l, r);
-//        quickSort( a, l, j-1);
-//        quickSort( a, j+1, r);
-//    }
-//
-//}
-/**
- * END of Quick Sort
- */
-
-
-
-/**
- * Insertion Sort
- */
 void insertionSort(int arr[], int length) {
     int i, j, tmp;
     for (i = 1; i < length; i++) {
@@ -124,9 +79,7 @@ void insertionSort(int arr[], int length) {
         }
     }
 }
-/**
- * END Insertion Sort
- */
+
 
 
 long GetMilliSecondTime(struct timeb timeBuf)
@@ -322,7 +275,11 @@ int main(int argc, char **argv)
 
 
     if(argc < 3){
-        cerr << "Please enter | array size [int between 1 and 100 000 000 | number of threads [int between 1 - 16 |\nsorting algorithm [l - insertion sort or q - quick sort] ";
+        cerr << "ERROR"
+                "\n\nWhile firing the process please enter the following parameters: "
+                "\narray size [int between 1 and 100 000 000 "
+                "\nnumber of threads [int between 1 - 16 "
+                "\nsorting algorithm [l - insertion sort or q - quick sort] ";
         return -1;
     }
 
@@ -393,7 +350,6 @@ int main(int argc, char **argv)
     cout << endl;
 #endif
 
-
     populateArrayWithRandomInt(arr, NUM_ELEMENTS, 0, NUM_ELEMENTS);
 
 #if DEBUG_MODE == 1
@@ -426,7 +382,7 @@ int main(int argc, char **argv)
             merge(arr, 0, (j*pivot)-1, (j+1)*pivot-1);
         }
     }
-    cout << "The time spent with one thread is: " << getTime() << endl;
+    cout << "The time spent with one thread is: " << getTime() << " ms" << endl;
 
 
 #if DEBUG_MODE == 1
@@ -434,9 +390,9 @@ int main(int argc, char **argv)
 #endif
 
     if(assertSuccessSort(arr, NUM_ELEMENTS) == 1){
-        printf("Sort is accurate\n");
+        printf("\t\tSort is accurate\n");
     } else {
-        printf("Sort is inaccurate\n");
+        printf("\t\tSort is inaccurate\n");
     }
 
     /**
@@ -500,45 +456,40 @@ int main(int argc, char **argv)
         }
     }
 
-    cout << "The time spent with " << NUM_THREADS << " thread[s] is " << getTime() << endl;
+    cout << "The time spent with " << NUM_THREADS << " thread[s] is " << getTime() << " ms" << endl;
 
     if(assertSuccessSort(arr, NUM_ELEMENTS) == 1){
-        printf("Sort is accurate\n");
+        printf("\t\tSort is accurate\n");
     } else {
-        printf("Sort is inacurate\n");
+        printf("\t\tSort is inaccurate\n");
     }
 
 
-    /* * * * *  TEST RESULTS * * * * *
+    /* * * * * * * * * * * * * * * * * * * * TEST RESULTS * * * * * * * * * * * * * * * * * * *
+
      1. Run InsertionSort using two threads with array sizes 10K, 100K and 300K.
-                    1 thread                                                 2 threads
+                    1 thread [in ms]                                         2 threads [in ms]
      10 K           13|12|14|13|12|14                                        9|8|8|9|7|7
      100 K          1754|1600|1827|1824|1621                                 772|814|798|800|845
      300 K          11375|10962|11072|10822                                  5617|5621|5583|5944
 
+
      2. Run InsertionSort using four threads with an array size of 100K.
-                     1 thread                                                 4 threads
+                     1 thread [in ms]                                         4 threads [in ms]
      100 K           981|907|1036|928|917                                     304|415|381|376383
 
 
-
      3. Run QuickSort using two threads with array sizes 1M, 10M and 100M.
-                     1 thread                                                 2 threads
+                     1 thread [in ms]                                         2 threads [in ms]
      1M              133|263|128|133|208|130                                  73|215|81|61|73|90
      10M             1492|1494|1598|1701|1861                                 831|780|774|776|784
      100M            13606|13491|17184                                        8215|7352|8509
 
 
-
      4. Run QuickSort using four threads with an array size of 10M.
-                     1 thread                                                 4 threads
+                     1 thread [in ms]                                         4 threads [in ms]
      10M             2003|2003|2143|1794|1511                                 634|623|629|626|673
      */
 
-
-
     return 0;
 }
-
-
-
