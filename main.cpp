@@ -22,19 +22,56 @@ enum SORT_TYPES {
     INSERTION,
     QUICK,
     MERGE,
+    HEAP,
 };
 
 //TODO: THINK about other ways how to do the final merge of sub-arrays
 //TODO: 20 threads for 20 elements is not good - RESOLVE IT!!!
 //TODO: test your program in 2003 or 2009 lab
+//TODO: Add bubble, selection.
 
-/* * * * * * * *  Quick Sort * * * * * * * * */
 
 void swap(int *a, int *b) {
     int temp = *a;
     *a = *b;
     *b = temp;
 }
+
+/* * * * * * * *  Heap Sort * * * * * * * * *
+ * Magic rules:
+ *      left kid: (i*2)+ 1
+ *      right kid: (i*2) + 2
+ *      inner nodes: (n/2)-1
+ */
+
+void heapifyMax(int *arr, int i, int n){
+    int max = i;
+    int l = i * 2 + 1;
+    int r = i * 2 + 2;
+    if(l < n && arr[l] > arr[max])
+        max = l;
+    if(r < n && arr[r] > arr[max])
+        max = r;
+    if(max != i){
+        swap(arr + i, arr + max);
+        heapifyMax(arr, max, n);
+    }
+}
+
+
+void heapSort(int *arr, int n){
+    for(int i = n/2-1; i >=0; i--){
+        heapifyMax(arr, i, n);
+    }
+    for(int i = 0; i < n - 1; i++){
+        swap(arr, arr + n - i - 1);
+        heapifyMax(arr, 0, n- i - 1);
+    }
+}
+
+
+
+/* * * * * * * *  Quick Sort * * * * * * * * */
 
 int divideIntoTwoHalves(int *arr, int l, int h) {
     int pivot = arr[h];
@@ -202,6 +239,8 @@ void *thr_func(void *arg) {
         quickSort(arr, data->low, data->high);
     else if (TYPE_OF_SORT == SORT_TYPES::INSERTION)
         insertionSort(&arr[data->low], data->high);
+    else if (TYPE_OF_SORT == SORT_TYPES::HEAP)
+        heapSort(&arr[data->low], data->high);
 
 
 #if TEST_MODE == 1
@@ -215,7 +254,7 @@ int assertCorrectParamsForMain(int argc) {
         cerr << "ERROR"
                 "\n\nWhile firing the process please enter the following parameters: "
                 "\narray size [int between 1 and 100 000 000 "
-                "\nnumber of threads [int between 1 - 16 "
+                "\nnumber of threads [int between 1 - 16] "
                 "\nsorting algorithm [l - insertion sort or q - quick sort] ";
         return -1;
     }
@@ -254,6 +293,8 @@ int main(int argc, char **argv) {
         TYPE_OF_SORT = SORT_TYPES::QUICK;
     else if (SORTING_ALGORITHM == 'm' | SORTING_ALGORITHM == 'M')
         TYPE_OF_SORT = SORT_TYPES::MERGE;
+    else if (SORTING_ALGORITHM == 'h' | SORTING_ALGORITHM == 'H')
+        TYPE_OF_SORT = SORT_TYPES::HEAP;
 
     int low;
     int pivot = NUM_OF_ELEMENTS / NUM_OF_THREADS;
@@ -270,7 +311,7 @@ int main(int argc, char **argv) {
          * 11/4 = 3
          * 0-2 3-5 6-8 9-the rest of the array */
         if (i == NUM_OF_THREADS - 1) {
-            if (TYPE_OF_SORT != SORT_TYPES::INSERTION) {
+            if (TYPE_OF_SORT != SORT_TYPES::INSERTION  && TYPE_OF_SORT != SORT_TYPES::HEAP) {
                 indices[i][0] = low;
                 indices[i][1] = NUM_OF_ELEMENTS - 1;
             } else {
@@ -283,7 +324,7 @@ int main(int argc, char **argv) {
              *
              * pivot = 20 / 4 = 5 */
 
-            if (TYPE_OF_SORT != SORT_TYPES::INSERTION) {
+            if (TYPE_OF_SORT != SORT_TYPES::INSERTION && TYPE_OF_SORT != SORT_TYPES::HEAP) {
                 indices[i][0] = low;
                 indices[i][1] = j * pivot - 1;
             } else {
@@ -316,6 +357,8 @@ int main(int argc, char **argv) {
             quickSort(arr, indices[i][0], indices[i][1]);
         else if (TYPE_OF_SORT == SORT_TYPES::INSERTION)
             insertionSort(&arr[indices[i][0]], indices[i][1]);
+        else if (TYPE_OF_SORT == SORT_TYPES::HEAP)
+            heapSort(&arr[indices[i][0]], indices[i][1]);
     }
 
 #if DEBUG_MODE == 1
