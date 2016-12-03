@@ -23,6 +23,7 @@ enum SORT_TYPES {
     QUICK,
     MERGE,
     HEAP,
+    BUBBLE,
 };
 
 //TODO: THINK about other ways how to do the final merge of sub-arrays
@@ -37,7 +38,24 @@ void swap(int *a, int *b) {
     *b = temp;
 }
 
+
+/* * * * * * * *  Bubble Sort * * * * * * * * */
+void bubbleSort(int *arr, int n){
+    for(int i = 0; i < n-1; i++){
+        bool swapped = false;
+        for(int j = 0; j < n - 1 - i; j++){
+            if(arr[j] > arr[j+1]){
+                swap(arr + j, arr + j + 1);
+                swapped = true;
+            }
+        }
+        if(swapped == false)
+            return;
+    }
+}
+
 /* * * * * * * *  Heap Sort * * * * * * * * *
+ *
  * Magic rules:
  *      left kid: (i*2)+ 1
  *      right kid: (i*2) + 2
@@ -58,7 +76,6 @@ void heapifyMax(int *arr, int i, int n){
     }
 }
 
-
 void heapSort(int *arr, int n){
     for(int i = n/2-1; i >=0; i--){
         heapifyMax(arr, i, n);
@@ -68,7 +85,6 @@ void heapSort(int *arr, int n){
         heapifyMax(arr, 0, n- i - 1);
     }
 }
-
 
 
 /* * * * * * * *  Quick Sort * * * * * * * * */
@@ -216,10 +232,8 @@ int assertSuccessSort(const int const *arr, const int length) {
     return 1;
 }
 
-/**
- * low inclusive [
- * high exclusive )
- */
+/* low inclusive [
+ * high exclusive ) */
 void populateArrayWithRandomInt(int *&data, const int len, int const low, int const high) {
     data = (int *) calloc((size_t) len, sizeof(int));
     int temp = 0;
@@ -241,6 +255,8 @@ void *thr_func(void *arg) {
         insertionSort(&arr[data->low], data->high);
     else if (TYPE_OF_SORT == SORT_TYPES::HEAP)
         heapSort(&arr[data->low], data->high);
+    else if (TYPE_OF_SORT == SORT_TYPES::BUBBLE)
+        bubbleSort(&arr[data->low], data->high);
 
 
 #if TEST_MODE == 1
@@ -255,7 +271,8 @@ int assertCorrectParamsForMain(int argc) {
                 "\n\nWhile firing the process please enter the following parameters: "
                 "\narray size [int between 1 and 100 000 000 "
                 "\nnumber of threads [int between 1 - 16] "
-                "\nsorting algorithm [l - insertion sort or q - quick sort] ";
+                "\nsorting algorithm [l - insertion sort | q - quick sort]"
+                " | b - bubble sort | h - heap sort ";
         return -1;
     }
     return 1;
@@ -295,6 +312,9 @@ int main(int argc, char **argv) {
         TYPE_OF_SORT = SORT_TYPES::MERGE;
     else if (SORTING_ALGORITHM == 'h' | SORTING_ALGORITHM == 'H')
         TYPE_OF_SORT = SORT_TYPES::HEAP;
+    else if (SORTING_ALGORITHM == 'b' | SORTING_ALGORITHM == 'B')
+        TYPE_OF_SORT = SORT_TYPES::BUBBLE;
+
 
     int low;
     int pivot = NUM_OF_ELEMENTS / NUM_OF_THREADS;
@@ -311,7 +331,8 @@ int main(int argc, char **argv) {
          * 11/4 = 3
          * 0-2 3-5 6-8 9-the rest of the array */
         if (i == NUM_OF_THREADS - 1) {
-            if (TYPE_OF_SORT != SORT_TYPES::INSERTION  && TYPE_OF_SORT != SORT_TYPES::HEAP) {
+            if (TYPE_OF_SORT != SORT_TYPES::INSERTION  && TYPE_OF_SORT != SORT_TYPES::HEAP
+                    && TYPE_OF_SORT != SORT_TYPES::BUBBLE) {
                 indices[i][0] = low;
                 indices[i][1] = NUM_OF_ELEMENTS - 1;
             } else {
@@ -324,7 +345,8 @@ int main(int argc, char **argv) {
              *
              * pivot = 20 / 4 = 5 */
 
-            if (TYPE_OF_SORT != SORT_TYPES::INSERTION && TYPE_OF_SORT != SORT_TYPES::HEAP) {
+            if (TYPE_OF_SORT != SORT_TYPES::INSERTION && TYPE_OF_SORT != SORT_TYPES::HEAP
+                    && TYPE_OF_SORT != SORT_TYPES::BUBBLE) {
                 indices[i][0] = low;
                 indices[i][1] = j * pivot - 1;
             } else {
@@ -359,6 +381,8 @@ int main(int argc, char **argv) {
             insertionSort(&arr[indices[i][0]], indices[i][1]);
         else if (TYPE_OF_SORT == SORT_TYPES::HEAP)
             heapSort(&arr[indices[i][0]], indices[i][1]);
+        else if (TYPE_OF_SORT == SORT_TYPES::BUBBLE)
+            bubbleSort(&arr[indices[i][0]], indices[i][1]);
     }
 
 #if DEBUG_MODE == 1
