@@ -24,12 +24,13 @@ enum SORT_TYPES {
     MERGE,
     HEAP,
     BUBBLE,
+    SELECTION,
+
 };
 
 //TODO: THINK about other ways how to do the final merge of sub-arrays
 //TODO: 20 threads for 20 elements is not good - RESOLVE IT!!!
 //TODO: test your program in 2003 or 2009 lab
-//TODO: Add bubble, selection.
 
 
 void swap(int *a, int *b) {
@@ -38,6 +39,19 @@ void swap(int *a, int *b) {
     *b = temp;
 }
 
+
+/* * * * * * * *  Selection Sort * * * * * * * * */
+void selectionSort(int *arr, int n){
+    for(int i = 0; i < n - 1; i++){
+        int min = i;
+        for(int j = i + 1; j < n; j++){
+            if(arr[j] < arr[min])
+                min = j;
+        }
+        if(i != min)
+            swap(arr + i, arr + min);
+    }
+}
 
 /* * * * * * * *  Bubble Sort * * * * * * * * */
 void bubbleSort(int *arr, int n){
@@ -257,6 +271,8 @@ void *thr_func(void *arg) {
         heapSort(&arr[data->low], data->high);
     else if (TYPE_OF_SORT == SORT_TYPES::BUBBLE)
         bubbleSort(&arr[data->low], data->high);
+    else if (TYPE_OF_SORT == SORT_TYPES::SELECTION)
+        selectionSort(&arr[data->low], data->high);
 
 
 #if TEST_MODE == 1
@@ -314,6 +330,8 @@ int main(int argc, char **argv) {
         TYPE_OF_SORT = SORT_TYPES::HEAP;
     else if (SORTING_ALGORITHM == 'b' | SORTING_ALGORITHM == 'B')
         TYPE_OF_SORT = SORT_TYPES::BUBBLE;
+    else if (SORTING_ALGORITHM == 's' | SORTING_ALGORITHM == 'S')
+        TYPE_OF_SORT = SORT_TYPES::SELECTION;
 
 
     int low;
@@ -332,7 +350,7 @@ int main(int argc, char **argv) {
          * 0-2 3-5 6-8 9-the rest of the array */
         if (i == NUM_OF_THREADS - 1) {
             if (TYPE_OF_SORT != SORT_TYPES::INSERTION  && TYPE_OF_SORT != SORT_TYPES::HEAP
-                    && TYPE_OF_SORT != SORT_TYPES::BUBBLE) {
+                    && TYPE_OF_SORT != SORT_TYPES::BUBBLE && TYPE_OF_SORT != SORT_TYPES::SELECTION) {
                 indices[i][0] = low;
                 indices[i][1] = NUM_OF_ELEMENTS - 1;
             } else {
@@ -346,7 +364,7 @@ int main(int argc, char **argv) {
              * pivot = 20 / 4 = 5 */
 
             if (TYPE_OF_SORT != SORT_TYPES::INSERTION && TYPE_OF_SORT != SORT_TYPES::HEAP
-                    && TYPE_OF_SORT != SORT_TYPES::BUBBLE) {
+                    && TYPE_OF_SORT != SORT_TYPES::BUBBLE && TYPE_OF_SORT != SORT_TYPES::SELECTION) {
                 indices[i][0] = low;
                 indices[i][1] = j * pivot - 1;
             } else {
@@ -383,6 +401,8 @@ int main(int argc, char **argv) {
             heapSort(&arr[indices[i][0]], indices[i][1]);
         else if (TYPE_OF_SORT == SORT_TYPES::BUBBLE)
             bubbleSort(&arr[indices[i][0]], indices[i][1]);
+        else if (TYPE_OF_SORT == SORT_TYPES::SELECTION)
+            selectionSort(&arr[indices[i][0]], indices[i][1]);
     }
 
 #if DEBUG_MODE == 1
